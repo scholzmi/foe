@@ -324,7 +324,7 @@ function calculateAbsichern() {
             // Mindest-Eigenanteil damit Gegner den Mäzen nach Eigen+Mäzen nicht mehr sicher überholen kann:
             // Nach Eigen+Mäzen gilt: restDanach = total - current - eigen - maezenAnteil
             // Sicher wenn: gegnerBeitrag >= restDanach  =>  eigen >= total - current - maezenAnteil - gegnerBeitrag
-            const minEigenGegner = Math.ceil(total - current - maezenAnteil - gegnerBeitrag);
+            const minEigenGegner = Math.ceil(total - current - (2 * maezenAnteil) + gegnerBeitrag);
             // Alte Formel (ohne Gegner)
             const minEigenOhneGegner = Math.ceil(total - current - (2 * maezenAnteil));
             // Nimm das Maximum beider Bedingungen

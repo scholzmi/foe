@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FP Berechnungen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4285f4; /* Google Tasks ähnlicher Farbton */
+        }
+        .input-field {
+            margin-bottom: 15px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4285f4;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #357ae8;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FP Berechnungen</h1>
+
+        <h2>Snipern</h2>
+        <div class="input-field">
+            <label for="snipern-total">Gesamtzahl benötigte FP:</label>
+            <input type="number" id="snipern-total" placeholder="Eingabe" required>
+        </div>
+        <div class="input-field">
+            <label for="snipern-current">Aktuell insgesamt einbezahlte FP:</label>
+            <input type="number" id="snipern-current" placeholder="Eingabe" required>
+        </div>
+        <div class="input-field">
+            <label for="snipern-next">FP auf zu besetzendem Platz:</label>
+            <input type="number" id="snipern-next" placeholder="Eingabe" required>
+        </div>
+        <button onclick="calculateSnipern()">Berechnen</button>
+        <div class="result" id="snipern-result"></div>
+
+        <h2>Absichern</h2>
+        <div class="input-field">
+            <label for="absichern-total">Gesamtzahl benötigte FP:</label>
+            <input type="number" id="absichern-total" placeholder="Eingabe" required>
+        </div>
+        <div class="input-field">
+            <label for="absichern-current">Aktuell insgesamt einbezahlte FP:</label>
+            <input type="number" id="absichern-current" placeholder="Eingabe" required>
+        </div>
+        <div class="input-field">
+            <label for="absichern-grant">Förderung:</label>
+            <input type="number" id="absichern-grant" value="1.9" required>
+        </div>
+        <div class="input-field">
+            <label for="absichern-next">FP für nächsten zu besetzenden Platz:</label>
+            <input type="number" id="absichern-next" placeholder="Eingabe" required>
+        </div>
+        <button onclick="calculateAbsichern()">Berechnen</button>
+        <div class="result" id="absichern-result"></div>
+    </div>
+
+    <script>
+        function calculateSnipern() {
+            const total = parseFloat(document.getElementById('snipern-total').value);
+            const current = parseFloat(document.getElementById('snipern-current').value);
+            const next = parseFloat(document.getElementById('snipern-next').value);
+
+            if (!isNaN(total) && !isNaN(current) && !isNaN(next)) {
+                const result = Math.round((total - current + next) / 2);
+                document.getElementById('snipern-result').textContent = "Ergebnis: " + result;
+            } else {
+                document.getElementById('snipern-result').textContent = "Bitte gültige Werte eingeben.";
+            }
+        }
+
+        function calculateAbsichern() {
+            const total = parseFloat(document.getElementById('absichern-total').value);
+            const current = parseFloat(document.getElementById('absichern-current').value);
+            const grant = parseFloat(document.getElementById('absichern-grant').value);
+            const next = parseFloat(document.getElementById('absichern-next').value);
+
+            if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
+                const result = total - current - (2 * grant * next);
+                document.getElementById('absichern-result').textContent = "Ergebnis: " + result;
+            } else {
+                document.getElementById('absichern-result').textContent = "Bitte gültige Werte eingeben.";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -193,47 +193,40 @@
 
     <script>
        function calculateSnipern() {
-    // Eingabewerte abgreifen
-    const total = parseFloat(document.getElementById('snipern-total').value);      // Gesamt-FP für Level
-    const current = parseFloat(document.getElementById('snipern-current').value);  // Aktueller Stand (insgesamt eingezahlt)
-    const arche = parseFloat(document.getElementById('snipern-arche').value);      // Dein Arche-Bonus (z.B. 1.9)
-    const belohnung = parseFloat(document.getElementById('snipern-besetz').value); // Grundbelohnung des Platzes
-    const eigenAnteil = parseFloat(document.getElementById('snipern-ueberhol').value); // FP desjenigen, den man überholen will (oder 0)
+    // 1. Eingabewerte abgreifen
+    const total = parseFloat(document.getElementById('snipern-total').value);
+    const current = parseFloat(document.getElementById('snipern-current').value);
+    const arche = parseFloat(document.getElementById('snipern-arche').value);
+    const belohnung = parseFloat(document.getElementById('snipern-besetz').value);
+    const eigenAnteil = parseFloat(document.getElementById('snipern-ueberhol').value);
 
     const resultElement = document.getElementById('snipern-result');
 
-    // Validierung
+    // 2. Validierung: Sind alle notwendigen Zahlen da?
+    // Hinweis: eigenAnteil darf leer/0 sein, daher nutzen wir dafür || 0
     if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(belohnung)) {
         
-        // 1. Berechnung: Wie viele FP muss man einzahlen, um den Platz sicher zu haben?
-        // Formel: (Rest-FP + eigene FP des Gegners) / 2
-        // Wir nehmen an, 'eigenAnteil' sind die FP des aktuellen Platzhalters.
         let rest = total - current;
         let safeInsert = Math.ceil((rest + (isNaN(eigenAnteil) ? 0 : eigenAnteil)) / 2);
 
-// ... (innerhalb von calculateSnipern nach der Berechnung von safeInsert)
-resultElement.innerHTML = `
-    Einsatz: <strong>${safeInsert} FP</strong><br>
-    Gewinn: <strong>${profit} FP</strong>
-`;
-// Speichere die reine Zahl in einem Daten-Attribut
-resultElement.setAttribute('data-value', safeInsert);        
-        
         // Falls der Platz schon mit weniger FP sicher ist, als die Formel berechnet:
         if (safeInsert > rest) safeInsert = rest;
+        if (safeInsert < 0) safeInsert = 0;
 
-        // 2. Berechnung: Gewinn / Verlust
+        // 3. Berechnung von Bonus und Profit (Muss VOR der Anzeige passieren!)
         const maezenBonus = Math.round(belohnung * arche);
         const profit = maezenBonus - safeInsert;
 
-        // Ergebnis-Text zusammenbauen
+        // 4. Ergebnis-Text zusammenbauen
         resultElement.innerHTML = `
             Einsatz: <strong>${safeInsert} FP</strong><br>
             Gewinn: <strong>${profit} FP</strong>
         `;
 
-        // 3. Farbliche Kennzeichnung (Logik-Check)
-        // Grün, wenn Profit > 0 ODER zumindest kein Verlust (>= 0)
+        // Speichere die reine Zahl für die Kopier-Funktion
+        resultElement.setAttribute('data-value', safeInsert);        
+        
+        // 5. Farbliche Kennzeichnung
         if (profit >= 0) {
             resultElement.style.backgroundColor = '#4caf50'; // Grün
             resultElement.style.color = '#fff';
@@ -243,9 +236,11 @@ resultElement.setAttribute('data-value', safeInsert);
         }
 
     } else {
+        // Wenn noch Felder leer sind
         resultElement.textContent = "Werte unvollständig";
         resultElement.style.backgroundColor = '#e0e0e0';
         resultElement.style.color = '#333';
+        resultElement.removeAttribute('data-value');
     }
 }
 

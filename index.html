@@ -369,7 +369,7 @@ function copyToClipboard(elementId, triggerEl) {
     if (!element) return;
 
     let textToCopy = element.getAttribute('data-value');
-    if (!textToCopy) return;
+    if (textToCopy === null) return;
 
     if (elementId === 'absichern-maezen') {
         const ausschreibungstext = document.getElementById('absichern-ausschreibung').value;

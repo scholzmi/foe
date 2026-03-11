@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FP Berechnungen</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -24,24 +26,22 @@
             color: #4285f4; /* Google Tasks ähnlicher Farbton */
         }
         .input-field {
-            display: flex;
-            align-items: center;
             margin-bottom: 15px;
         }
         label {
-            flex: 1;
-            margin-right: 10px;
+            display: block; /* Block-Element für vertikale Anordnung */
+            margin-bottom: 5px;
             font-weight: bold;
         }
         input[type="number"] {
-            flex: 2;
+            width: 100%; /* Eingabefelder über die gesamte Breite */
             padding: 5px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
         }
         .result {
-            flex: 2;
+            margin-top: 10px;
             padding: 5px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -60,7 +60,6 @@
         <div class="input-field">
             <label for="snipern-total">Gesamtzahl benötigte FP:</label>
             <input type="number" id="snipern-total" placeholder="Eingabe" onblur="calculateSnipern()" required>
-            <div class="result" id="snipern-result">Ergebnis: </div>
         </div>
         <div class="input-field">
             <label for="snipern-current">Aktuell insgesamt einbezahlte FP:</label>
@@ -75,7 +74,6 @@
         <div class="input-field">
             <label for="absichern-total">Gesamtzahl benötigte FP:</label>
             <input type="number" id="absichern-total" placeholder="Eingabe" onblur="calculateAbsichern()" required>
-            <div class="result" id="absichern-result">Ergebnis: </div>
         </div>
         <div class="input-field">
             <label for="absichern-current">Aktuell insgesamt einbezahlte FP:</label>
@@ -89,6 +87,15 @@
             <label for="absichern-next">FP für nächsten zu besetzenden Platz:</label>
             <input type="number" id="absichern-next" placeholder="Eingabe" onblur="calculateAbsichern()" required>
         </div>
+
+        <div class="input-field">
+            <label for="absichern-result">Ergebnis:</label>
+            <div class="result" id="absichern-result">Bitte geben Sie oben Werte ein.</div>
+        </div>
+        <div class="input-field">
+            <label for="snipern-result">Ergebnis:</label>
+            <div class="result" id="snipern-result">Bitte geben Sie oben Werte ein.</div>
+        </div>
     </div>
 
     <script>
@@ -101,7 +108,7 @@
                 const result = Math.round((total - current + next) / 2);
                 document.getElementById('snipern-result').textContent = "Ergebnis: " + result;
             } else {
-                document.getElementById('snipern-result').textContent = "Ergebnis: ";
+                document.getElementById('snipern-result').textContent = "Bitte geben Sie oben Werte ein.";
             }
         }
 
@@ -115,7 +122,7 @@
                 const result = total - current - (2 * grant * next);
                 document.getElementById('absichern-result').textContent = "Ergebnis: " + result;
             } else {
-                document.getElementById('absichern-result').textContent = "Ergebnis: ";
+                document.getElementById('absichern-result').textContent = "Bitte geben Sie oben Werte ein.";
             }
         }
     </script>

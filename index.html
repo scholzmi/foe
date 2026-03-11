@@ -145,12 +145,12 @@
         <input type="number" id="snipern-arche" value="1.9" step="0.01" oninput="calculateSnipern(); saveFormToCookie()">
     </div>        
     <div class="input-field">
-        <label for="snipern-besetz">Basis-FP für zu besetzenden Platz</label>
+        <label for="snipern-besetz">FP für zu besetzenden Platz</label>
         <input type="number" id="snipern-besetz" placeholder="Eingabe" oninput="calculateSnipern(); saveFormToCookie()">
     </div>
     <div class="input-field">
         <label for="snipern-ueberhol">FP im zu überholenden Platz</label>
-        <input type="number" id="snipern-ueberhol" placeholder="Eingabe" oninput="calculateSnipern(); saveFormToCookie()">
+        <input type="number" id="snipern-ueberhol" placeholder="Eingabe (optional)" oninput="calculateSnipern(); saveFormToCookie()">
     </div>        
     <div class="input-field">
         <label>Ergebnis (Klick zum Kopieren)</label>
@@ -182,9 +182,13 @@
         <label for="absichern-next">Basis-Belohnung (Platz)</label>
         <input type="number" id="absichern-next" placeholder="Eingabe" oninput="calculateAbsichern(); saveFormToCookie()">
     </div>
+    <div class="input-field">
+        <label for="absichern-ueberhol">FP im zu überholenden Platz</label>
+        <input type="number" id="absichern-ueberhol" placeholder="Eingabe (optional)" oninput="calculateAbsichern(); saveFormToCookie()">
+    </div>
 
     <div class="input-field">
-        <label>Eigenanteil (Klick zum Kopieren)</label>
+        <label>Eigenanteil:</label>
         <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result')">Ergebnis</div>
     </div>
 
@@ -194,7 +198,7 @@
     </div>
 
     <div class="input-field">
-        <label>Mäzen zahlt (Klick zum Kopieren)</label>
+        <label>Mäzen zahlt:</label>
         <div class="result" id="absichern-maezen" onclick="copyToClipboard('absichern-maezen')">Mäzen-Anteil</div>
     </div>
 </div>
@@ -211,7 +215,7 @@ function saveFormToCookie() {
         'snipern-total', 'snipern-current', 'snipern-arche',
         'snipern-besetz', 'snipern-ueberhol',
         'absichern-total', 'absichern-current', 'absichern-grant',
-        'absichern-next', 'absichern-ausschreibung'
+        'absichern-next', 'absichern-ueberhol', 'absichern-ausschreibung'
     ];
     const data = {};
     fields.forEach(id => {
@@ -291,6 +295,7 @@ function calculateAbsichern() {
     const current = parseFloat(document.getElementById('absichern-current').value);
     const grant = parseFloat(document.getElementById('absichern-grant').value);
     const next = parseFloat(document.getElementById('absichern-next').value);
+    const gegnerBeitrag = parseFloat(document.getElementById('absichern-ueberhol').value) || 0;
     const restField = document.getElementById('absichern-rest');
 
     const resEigen = document.getElementById('absichern-result');
@@ -305,9 +310,48 @@ function calculateAbsichern() {
 
     if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
         const maezenAnteil = Math.round(next * grant);
-        const result = Math.ceil(total - current - (2 * maezenAnteil));
+
+        // Ohne Gegner: bisherige Formel
+        // Mit Gegner: Eigenanteil muss so hoch sein, dass nach Eigen + Mäzen
+        // der verbleibende Rest < gegnerBeitrag ist (Gegner kann nicht mehr sicher überholen)
+        // Bedingung: rest_nach_eigen_und_maezen < gegnerBeitrag
+        // => total - current - eigen - maezenAnteil < gegnerBeitrag
+        // => eigen > total - current - maezenAnteil - gegnerBeitrag
+        // Außerdem muss eigen >= 0 und das Ergebnis muss >= der alten Formel sein
+
+        let result;
+        if (gegnerBeitrag > 0) {
+            // Mindest-Eigenanteil damit Gegner den Mäzen nach Eigen+Mäzen nicht mehr sicher überholen kann:
+            // Nach Eigen+Mäzen gilt: restDanach = total - current - eigen - maezenAnteil
+            // Sicher wenn: gegnerBeitrag >= restDanach  =>  eigen >= total - current - maezenAnteil - gegnerBeitrag
+            const minEigenGegner = Math.ceil(total - current - maezenAnteil - gegnerBeitrag);
+            // Alte Formel (ohne Gegner)
+            const minEigenOhneGegner = Math.ceil(total - current - (2 * maezenAnteil));
+            // Nimm das Maximum beider Bedingungen
+            result = Math.max(minEigenGegner, minEigenOhneGegner);
+        } else {
+            result = Math.ceil(total - current - (2 * maezenAnteil));
+        }
+
         const finalEigen = result < 0 ? 0 : result;
-        
+
+        // Prüfen ob Absichern überhaupt noch möglich ist:
+        // Selbst wenn eigen = rest (alles einzahlen), darf der Gegner danach nicht mehr überholen
+        // Nach Volleinzahlung ist rest=0, Gegner kann nicht mehr einzahlen -> immer sicher wenn eigen=rest
+        // Aber: wenn gegnerBeitrag >= (total-current) ist der Platz bereits nicht mehr zu retten
+        const restGesamt = total - current;
+        if (gegnerBeitrag >= restGesamt) {
+            resEigen.innerHTML = '⚠️ Nicht mehr absicherbar!';
+            resEigen.removeAttribute('data-value');
+            resEigen.style.backgroundColor = '#ff6b6b';
+            resEigen.style.color = '#fff';
+            resMaezen.textContent = maezenAnteil + " FP";
+            resMaezen.setAttribute('data-value', maezenAnteil);
+            resMaezen.style.backgroundColor = '#4caf50';
+            resMaezen.style.color = '#fff';
+            return;
+        }
+
         resEigen.textContent = finalEigen + " FP";
         resEigen.setAttribute('data-value', finalEigen);
         resEigen.style.backgroundColor = '#2196F3'; 

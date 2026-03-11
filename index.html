@@ -191,42 +191,29 @@
 
     <div class="copy-feedback" id="copyFeedback">✓ In Zwischenablage kopiert!</div>
 
-    <script>
-       function calculateSnipern() {
-    // 1. Eingabewerte abgreifen
+<script>
+function calculateSnipern() {
     const total = parseFloat(document.getElementById('snipern-total').value);
     const current = parseFloat(document.getElementById('snipern-current').value);
     const arche = parseFloat(document.getElementById('snipern-arche').value);
     const belohnung = parseFloat(document.getElementById('snipern-besetz').value);
     const eigenAnteil = parseFloat(document.getElementById('snipern-ueberhol').value);
-
     const resultElement = document.getElementById('snipern-result');
 
-    // 2. Validierung: Sind alle notwendigen Zahlen da?
-    // Hinweis: eigenAnteil darf leer/0 sein, daher nutzen wir dafür || 0
     if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(belohnung)) {
-        
         let rest = total - current;
         let safeInsert = Math.ceil((rest + (isNaN(eigenAnteil) ? 0 : eigenAnteil)) / 2);
 
-        // Falls der Platz schon mit weniger FP sicher ist, als die Formel berechnet:
         if (safeInsert > rest) safeInsert = rest;
         if (safeInsert < 0) safeInsert = 0;
 
-        // 3. Berechnung von Bonus und Profit (Muss VOR der Anzeige passieren!)
         const maezenBonus = Math.round(belohnung * arche);
         const profit = maezenBonus - safeInsert;
 
-        // 4. Ergebnis-Text zusammenbauen
-        resultElement.innerHTML = `
-            Einsatz: <strong>${safeInsert} FP</strong><br>
-            Gewinn: <strong>${profit} FP</strong>
-        `;
-
-        // Speichere die reine Zahl für die Kopier-Funktion
+        resultElement.innerHTML = `Einsatz: <strong>${safeInsert} FP</strong><br>Gewinn: <strong>${profit} FP</strong>`;
         resultElement.setAttribute('data-value', safeInsert);        
         
-        // 5. Farbliche Kennzeichnung
+        // Farbe setzen: Grün wenn Profit, sonst Rot
         if (profit >= 0) {
             resultElement.style.backgroundColor = '#4caf50'; // Grün
             resultElement.style.color = '#fff';
@@ -234,9 +221,7 @@
             resultElement.style.backgroundColor = '#ff6b6b'; // Rot
             resultElement.style.color = '#fff';
         }
-
     } else {
-        // Wenn noch Felder leer sind
         resultElement.textContent = "Werte unvollständig";
         resultElement.style.backgroundColor = '#e0e0e0';
         resultElement.style.color = '#333';
@@ -244,39 +229,46 @@
     }
 }
 
-        function calculateAbsichern() {
-            const total = parseFloat(document.getElementById('absichern-total').value);
-            const current = parseFloat(document.getElementById('absichern-current').value);
-            const grant = parseFloat(document.getElementById('absichern-grant').value);
-            const next = parseFloat(document.getElementById('absichern-next').value);
-            const resultElement = document.getElementById('absichern-result');
+function calculateAbsichern() {
+    const total = parseFloat(document.getElementById('absichern-total').value);
+    const current = parseFloat(document.getElementById('absichern-current').value);
+    const grant = parseFloat(document.getElementById('absichern-grant').value);
+    const next = parseFloat(document.getElementById('absichern-next').value);
+    const resultElement = document.getElementById('absichern-result');
 
-            if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
-                // Formel: Restbedarf minus doppelter Förderwert (um sicher zu sein gegen Sniper)
-                const result = Math.ceil(total - current - (2 * Math.round(next * grant)));
-                resultElement.textContent = result < 0 ? 0 : result;
-            } else {
-                resultElement.textContent = "Ergebnis";
-            }
-        }
+    if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
+        const result = Math.ceil(total - current - (2 * Math.round(next * grant)));
+        const finalValue = result < 0 ? 0 : result;
+        
+        resultElement.textContent = finalValue + " FP";
+        resultElement.setAttribute('data-value', finalValue);
+        
+        // Hier setzen wir die Farbe auch auf Grün, damit kopiert werden kann!
+        resultElement.style.backgroundColor = '#4caf50'; 
+        resultElement.style.color = '#fff';
+    } else {
+        resultElement.textContent = "Ergebnis";
+        resultElement.style.backgroundColor = '#e0e0e0';
+        resultElement.style.color = '#333';
+        resultElement.removeAttribute('data-value');
+    }
+}
 
 function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
-    
-    // 1. Prüfung: Nur kopieren, wenn der Hintergrund grün ist
-    // rgb(76, 175, 80) entspricht deinem #4caf50
+    if (!element) return;
+
+    // Prüfung: Nur kopieren, wenn der Hintergrund grün ist (#4caf50)
     const bgColor = window.getComputedStyle(element).backgroundColor;
     if (bgColor !== "rgb(76, 175, 80)") {
         return; 
     }
 
-    // 2. Wert ermitteln: Entweder aus data-value (Snipern) oder textContent (Absichern)
-    let textToCopy = element.getAttribute('data-value') || element.textContent;
+    // Wert aus data-value holen
+    let textToCopy = element.getAttribute('data-value');
     
-    // Falls noch "Ergebnis" drin steht, nicht kopieren
-    if (textToCopy === "Ergebnis") return;
+    if (!textToCopy) return;
 
-    // Kopier-Vorgang
     navigator.clipboard.writeText(textToCopy).then(() => {
         showCopyFeedback();
     }).catch(err => {
@@ -284,13 +276,14 @@ function copyToClipboard(elementId) {
     });
 }
 
-        function showCopyFeedback() {
-            const feedback = document.getElementById('copyFeedback');
-            feedback.classList.add('show');
-            setTimeout(() => {
-                feedback.classList.remove('show');
-            }, 2000);
-        }
-    </script>
+function showCopyFeedback() {
+    const feedback = document.getElementById('copyFeedback');
+    if (!feedback) return;
+    feedback.classList.add('show');
+    setTimeout(() => {
+        feedback.classList.remove('show');
+    }, 2000);
+}
+</script>
 </body>
 </html>

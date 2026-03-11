@@ -72,6 +72,7 @@
             text-align: center;
             min-height: 20px;
             box-sizing: border-box;
+            position: relative;
         }
         .result:hover {
             background-color: #d0d0d0;
@@ -80,22 +81,26 @@
         .result:active {
             background-color: #c0c0c0;
         }
+
+        /* Toast erscheint direkt über/neben dem geklickten Button */
         .copy-feedback {
             position: fixed;
-            top: 20px;
-            right: 20px;
             background-color: #4caf50;
             color: white;
-            padding: 12px 20px;
+            padding: 7px 13px;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
             z-index: 1000;
             opacity: 0;
-            transition: opacity 0.3s;
             pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transform: translateY(0);
+            transition: opacity 0.25s, transform 0.25s;
         }
         .copy-feedback.show {
             opacity: 1;
+            transform: translateY(-4px);
         }
 
         /* Mobile-Optimierung */
@@ -155,7 +160,7 @@
     <div class="input-field">
         <label>Ergebnis (Klick zum Kopieren)</label>
         <div class="result-container">
-            <div class="result" id="snipern-result" onclick="copyToClipboard('snipern-result')">Ergebnis</div>
+            <div class="result" id="snipern-result" onclick="copyToClipboard('snipern-result', this)">Ergebnis</div>
         </div>
     </div>
 
@@ -189,7 +194,7 @@
 
     <div class="input-field">
         <label>Eigenanteil:</label>
-        <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result')">Ergebnis</div>
+        <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result', this)">Ergebnis</div>
     </div>
 
     <div class="input-field">
@@ -199,13 +204,13 @@
 
     <div class="input-field">
         <label>Mäzen zahlt:</label>
-        <div class="result" id="absichern-maezen" onclick="copyToClipboard('absichern-maezen')">Mäzen-Anteil</div>
+        <div class="result" id="absichern-maezen" onclick="copyToClipboard('absichern-maezen', this)">Mäzen-Anteil</div>
     </div>
 </div>
 
-<p style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">proshido 2026</p>
+<p style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Michael Scholz</p>
 
-<div class="copy-feedback" id="copyFeedback">✓ In Zwischenablage kopiert!</div>
+<div class="copy-feedback" id="copyFeedback">✓ Kopiert!</div>
 
 <script>
 // ── Cookie-Funktionen ────────────────────────────────────────────────────────
@@ -251,7 +256,6 @@ function calculateSnipern() {
     const resultElement = document.getElementById('snipern-result');
     const restField = document.getElementById('snipern-rest');
 
-    // Rest Gebäude berechnen und anzeigen
     if (!isNaN(total) && !isNaN(current)) {
         restField.value = total - current;
     } else {
@@ -261,7 +265,6 @@ function calculateSnipern() {
     if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(belohnung)) {
         let rest = total - current;
 
-        // Prüfen ob Überholen überhaupt noch möglich ist
         if (gegnerBeitrag >= rest) {
             resultElement.innerHTML = `⚠️ Nicht mehr überholbar!`;
             resultElement.removeAttribute('data-value');
@@ -301,7 +304,6 @@ function calculateAbsichern() {
     const resEigen = document.getElementById('absichern-result');
     const resMaezen = document.getElementById('absichern-maezen');
 
-    // Rest Gebäude berechnen und anzeigen
     if (!isNaN(total) && !isNaN(current)) {
         restField.value = total - current;
     } else {
@@ -311,23 +313,10 @@ function calculateAbsichern() {
     if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
         const maezenAnteil = Math.round(next * grant);
 
-        // Ohne Gegner: bisherige Formel
-        // Mit Gegner: Eigenanteil muss so hoch sein, dass nach Eigen + Mäzen
-        // der verbleibende Rest < gegnerBeitrag ist (Gegner kann nicht mehr sicher überholen)
-        // Bedingung: rest_nach_eigen_und_maezen < gegnerBeitrag
-        // => total - current - eigen - maezenAnteil < gegnerBeitrag
-        // => eigen > total - current - maezenAnteil - gegnerBeitrag
-        // Außerdem muss eigen >= 0 und das Ergebnis muss >= der alten Formel sein
-
         let result;
         if (gegnerBeitrag > 0) {
-            // Mindest-Eigenanteil damit Gegner den Mäzen nach Eigen+Mäzen nicht mehr sicher überholen kann:
-            // Nach Eigen+Mäzen gilt: restDanach = total - current - eigen - maezenAnteil
-            // Sicher wenn: gegnerBeitrag >= restDanach  =>  eigen >= total - current - maezenAnteil - gegnerBeitrag
             const minEigenGegner = Math.ceil(total - current - (2 * maezenAnteil) + gegnerBeitrag);
-            // Alte Formel (ohne Gegner)
             const minEigenOhneGegner = Math.ceil(total - current - (2 * maezenAnteil));
-            // Nimm das Maximum beider Bedingungen
             result = Math.max(minEigenGegner, minEigenOhneGegner);
         } else {
             result = Math.ceil(total - current - (2 * maezenAnteil));
@@ -335,10 +324,6 @@ function calculateAbsichern() {
 
         const finalEigen = result < 0 ? 0 : result;
 
-        // Prüfen ob Absichern überhaupt noch möglich ist:
-        // Selbst wenn eigen = rest (alles einzahlen), darf der Gegner danach nicht mehr überholen
-        // Nach Volleinzahlung ist rest=0, Gegner kann nicht mehr einzahlen -> immer sicher wenn eigen=rest
-        // Aber: wenn gegnerBeitrag >= (total-current) ist der Platz bereits nicht mehr zu retten
         const restGesamt = total - current;
         if (gegnerBeitrag >= restGesamt) {
             resEigen.innerHTML = '⚠️ Nicht mehr absicherbar!';
@@ -377,7 +362,9 @@ function calculateAbsichern() {
 
 // ── Clipboard ────────────────────────────────────────────────────────────────
 
-function copyToClipboard(elementId) {
+let feedbackTimeout = null;
+
+function copyToClipboard(elementId, triggerEl) {
     const element = document.getElementById(elementId);
     if (!element) return;
 
@@ -392,20 +379,40 @@ function copyToClipboard(elementId) {
     }
 
     navigator.clipboard.writeText(textToCopy).then(() => {
-        showCopyFeedback();
+        showCopyFeedback(triggerEl || element);
     }).catch(err => {
         console.error('Fehler beim Kopieren: ', err);
     });
 }
 
-function showCopyFeedback() {
+function showCopyFeedback(anchorEl) {
     const feedback = document.getElementById('copyFeedback');
     if (!feedback) return;
-    feedback.classList.add('show');
-    setTimeout(() => feedback.classList.remove('show'), 2000);
+
+    // Position berechnen relativ zum geklickten Element
+    const rect = anchorEl.getBoundingClientRect();
+    const feedbackW = 110; // ungefähre Breite des Toasts
+
+    // Vertikal: knapp über dem Button
+    let top = rect.top + window.scrollY - 38;
+    // Horizontal: mittig über dem Button, aber im Viewport bleiben
+    let left = rect.left + window.scrollX + (rect.width / 2) - (feedbackW / 2);
+    left = Math.max(8, Math.min(left, window.innerWidth - feedbackW - 8));
+
+    feedback.style.top = top + 'px';
+    feedback.style.left = left + 'px';
+
+    // Alten Timer abbrechen falls noch aktiv
+    if (feedbackTimeout) clearTimeout(feedbackTimeout);
+    feedback.classList.remove('show');
+    // Kleines Reflow-Delay damit die Transition neu startet
+    requestAnimationFrame(() => {
+        feedback.classList.add('show');
+        feedbackTimeout = setTimeout(() => feedback.classList.remove('show'), 1800);
+    });
 }
 
-// ── Initialisierung: Cookie laden & Berechnungen neu auslösen ─────────────────
+// ── Initialisierung ───────────────────────────────────────────────────────────
 
 window.addEventListener('DOMContentLoaded', () => {
     loadFormFromCookie();

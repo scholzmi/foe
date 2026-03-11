@@ -24,22 +24,30 @@
             color: #4285f4; /* Google Tasks ähnlicher Farbton */
         }
         .input-field {
+            display: flex;
+            align-items: center;
             margin-bottom: 15px;
         }
+        label {
+            flex: 1;
+            margin-right: 10px;
+            font-weight: bold;
+        }
         input[type="number"] {
-            width: 100%;
-            padding: 10px;
+            flex: 2;
+            padding: 5px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 14px;
         }
         .result {
-            width: 100%;
-            padding: 10px;
+            flex: 2;
+            padding: 5px;
             border: 1px solid #ccc;
             border-radius: 4px;
             background-color: #e0e0e0; /* Grauer Hintergrund für Ergebnisfeld */
             color: #333;
-            font-size: 18px;
+            font-size: 14px;
             pointer-events: none; /* Verhindert das Schreiben */
         }
     </style>
@@ -52,6 +60,7 @@
         <div class="input-field">
             <label for="snipern-total">Gesamtzahl benötigte FP:</label>
             <input type="number" id="snipern-total" placeholder="Eingabe" onblur="calculateSnipern()" required>
+            <div class="result" id="snipern-result">Ergebnis: </div>
         </div>
         <div class="input-field">
             <label for="snipern-current">Aktuell insgesamt einbezahlte FP:</label>
@@ -61,12 +70,12 @@
             <label for="snipern-next">FP auf zu besetzendem Platz:</label>
             <input type="number" id="snipern-next" placeholder="Eingabe" onblur="calculateSnipern()" required>
         </div>
-        <div class="result" id="snipern-result">Ergebnis: </div>
 
         <h2>Absichern</h2>
         <div class="input-field">
             <label for="absichern-total">Gesamtzahl benötigte FP:</label>
             <input type="number" id="absichern-total" placeholder="Eingabe" onblur="calculateAbsichern()" required>
+            <div class="result" id="absichern-result">Ergebnis: </div>
         </div>
         <div class="input-field">
             <label for="absichern-current">Aktuell insgesamt einbezahlte FP:</label>
@@ -80,7 +89,6 @@
             <label for="absichern-next">FP für nächsten zu besetzenden Platz:</label>
             <input type="number" id="absichern-next" placeholder="Eingabe" onblur="calculateAbsichern()" required>
         </div>
-        <div class="result" id="absichern-result">Ergebnis: </div>
     </div>
 
     <script>

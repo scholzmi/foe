@@ -185,35 +185,40 @@ function calculateSnipern() {
     const current = parseFloat(document.getElementById('snipern-current').value);
     const arche = parseFloat(document.getElementById('snipern-arche').value);
     const belohnung = parseFloat(document.getElementById('snipern-besetz').value);
-    const eigenAnteil = parseFloat(document.getElementById('snipern-ueberhol').value) || 0;
+    const gegnerBeitrag = parseFloat(document.getElementById('snipern-ueberhol').value) || 0;
     const resultElement = document.getElementById('snipern-result');
 
     if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(belohnung)) {
         let rest = total - current;
-        // Berechnung für sicheres Einzahlen (Snipe)
-        let safeInsert = Math.ceil((rest + eigenAnteil) / 2);
+        
+        // Die mathematisch sichere Einzahlung:
+        // Man muss die Hälfte der verbleibenden Punkte PLUS die Hälfte dessen zahlen, 
+        // was der zu Überholende schon drin hat.
+        let safeInsert = Math.ceil((rest + gegnerBeitrag) / 2);
 
+        // Korrektur: Man kann nicht mehr einzahlen als noch offen ist
         if (safeInsert > rest) safeInsert = rest;
+        // Korrektur: Wenn man den Gegner bereits mit 0 weiteren FP überholt hat
         if (safeInsert < 0) safeInsert = 0;
 
         const maezenBonus = Math.round(belohnung * arche);
         const profit = maezenBonus - safeInsert;
 
-        resultElement.innerHTML = `Einsatz: <strong>${safeInsert}</strong> \n Gewinn: <strong>${profit}</strong>`;
+        // Nutze <br> für den Umbruch im HTML
+        resultElement.innerHTML = `Einsatz: <strong>${safeInsert}</strong><br>Gewinn: <strong>${profit}</strong>`;
+        
+        // WICHTIG: Was soll kopiert werden? Hier nur der Einsatz:
         resultElement.setAttribute('data-value', safeInsert);        
         
         if (profit >= 0) {
             resultElement.style.backgroundColor = '#4caf50';
-            resultElement.style.color = '#fff';
         } else {
             resultElement.style.backgroundColor = '#ff6b6b';
-            resultElement.style.color = '#fff';
         }
+        resultElement.style.color = '#fff';
     } else {
         resultElement.textContent = "Werte unvollständig";
-        resultElement.style.backgroundColor = '#e0e0e0';
-        resultElement.style.color = '#333';
-        resultElement.removeAttribute('data-value');
+        // Reset Styles...
     }
 }
 

@@ -103,6 +103,11 @@ input[type="number"] {
         </div>
     </div>
 
+        <hr style="margin-top: 30px; border: none; border-top: 1px solid #ccc;">
+        <p style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Michael Scholz</p>
+    </div>
+
+
     <script>
         function calculateSnipern() {
             const total = parseFloat(document.getElementById('snipern-total').value);
@@ -111,7 +116,7 @@ input[type="number"] {
 
             if (!isNaN(total) && !isNaN(current) && !isNaN(next)) {
                 const result = Math.round((total - current + next) / 2);
-                document.getElementById('snipern-result').textContent = "Ergebnis: " + result;
+                document.getElementById('snipern-result').textContent = result;
             } else {
                 document.getElementById('snipern-result').textContent = "Bitte geben Sie oben Werte ein.";
             }
@@ -125,7 +130,7 @@ input[type="number"] {
 
             if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
                 const result = total - current - (2 * grant * next);
-                document.getElementById('absichern-result').textContent = "Ergebnis: " + result;
+                document.getElementById('absichern-result').textContent = result;
             } else {
                 document.getElementById('absichern-result').textContent = "Bitte geben Sie oben Werte ein.";
             }

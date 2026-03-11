@@ -82,6 +82,15 @@
             background-color: #c0c0c0;
         }
 
+        @keyframes flash {
+            0%   { filter: brightness(1); }
+            30%  { filter: brightness(1.6); }
+            100% { filter: brightness(1); }
+        }
+        .result.flashing {
+            animation: flash 0.5s ease-out;
+        }
+
         /* Toast erscheint direkt über/neben dem geklickten Button */
         .copy-feedback {
             position: fixed;
@@ -210,7 +219,6 @@
 
 <p style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Michael Scholz</p>
 
-<div class="copy-feedback" id="copyFeedback">✓ Kopiert!</div>
 
 <script>
 // ── Cookie-Funktionen ────────────────────────────────────────────────────────
@@ -360,81 +368,43 @@ function calculateAbsichern() {
     }
 }
 
-// ── Clipboard ────────────────────────────────────────────────────────────────
+// ── Flash-Feedback ────────────────────────────────────────────────────────────
 
-let feedbackTimeout = null;
+function copyToClipboard(elementId, triggerEl) {
+    const element = triggerEl || document.getElementById(elementId);
+    if (!element) return;
 
-function execCommandCopy(text, anchorEl) {
+    // Flash
+    element.classList.remove('flashing');
+    void element.offsetWidth;
+    element.classList.add('flashing');
+    element.addEventListener('animationend', () => element.classList.remove('flashing'), { once: true });
+
+    // Clipboard
+    let textToCopy = element.getAttribute('data-value');
+    if (textToCopy === null) return;
+
+    if (elementId === 'absichern-maezen') {
+        const prefix = document.getElementById('absichern-ausschreibung').value;
+        if (prefix) textToCopy = prefix + " " + textToCopy;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).catch(() => execCommandCopy(textToCopy));
+    } else {
+        execCommandCopy(textToCopy);
+    }
+}
+
+function execCommandCopy(text) {
     const ta = document.createElement('textarea');
     ta.value = text;
     ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
     document.body.appendChild(ta);
     ta.focus();
     ta.select();
-    try {
-        document.execCommand('copy');
-        showCopyFeedback(anchorEl);
-    } catch(e) {
-        console.error('Kopieren fehlgeschlagen:', e);
-    }
+    try { document.execCommand('copy'); } catch(e) {}
     document.body.removeChild(ta);
-}
-
-function copyToClipboard(elementId, triggerEl) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-
-    let textToCopy = element.getAttribute('data-value');
-    if (textToCopy === null) return;
-
-    if (elementId === 'absichern-maezen') {
-        const ausschreibungstext = document.getElementById('absichern-ausschreibung').value;
-        if (ausschreibungstext) {
-            textToCopy = ausschreibungstext + " " + textToCopy;
-        }
-    }
-
-    // Fallback für Umgebungen wo Clipboard API blockiert ist
-    try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showCopyFeedback(triggerEl || element);
-            }).catch(() => {
-                execCommandCopy(textToCopy, triggerEl || element);
-            });
-        } else {
-            execCommandCopy(textToCopy, triggerEl || element);
-        }
-    } catch(e) {
-        execCommandCopy(textToCopy, triggerEl || element);
-    }
-}
-
-function showCopyFeedback(anchorEl) {
-    const feedback = document.getElementById('copyFeedback');
-    if (!feedback) return;
-
-    // Position berechnen relativ zum geklickten Element
-    const rect = anchorEl.getBoundingClientRect();
-    const feedbackW = 110; // ungefähre Breite des Toasts
-
-    // Vertikal: knapp über dem Button
-    let top = rect.top + window.scrollY - 38;
-    // Horizontal: mittig über dem Button, aber im Viewport bleiben
-    let left = rect.left + window.scrollX + (rect.width / 2) - (feedbackW / 2);
-    left = Math.max(8, Math.min(left, window.innerWidth - feedbackW - 8));
-
-    feedback.style.top = top + 'px';
-    feedback.style.left = left + 'px';
-
-    // Alten Timer abbrechen falls noch aktiv
-    if (feedbackTimeout) clearTimeout(feedbackTimeout);
-    feedback.classList.remove('show');
-    // Kleines Reflow-Delay damit die Transition neu startet
-    requestAnimationFrame(() => {
-        feedback.classList.add('show');
-        feedbackTimeout = setTimeout(() => feedback.classList.remove('show'), 1800);
-    });
 }
 
 // ── Initialisierung ───────────────────────────────────────────────────────────

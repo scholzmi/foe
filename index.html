@@ -235,6 +235,16 @@ function calculateSnipern() {
 
     if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(belohnung)) {
         let rest = total - current;
+
+        // Prüfen ob Überholen überhaupt noch möglich ist
+        if (gegnerBeitrag >= rest) {
+            resultElement.innerHTML = `⚠️ Nicht mehr überholbar!`;
+            resultElement.removeAttribute('data-value');
+            resultElement.style.backgroundColor = '#ff6b6b';
+            resultElement.style.color = '#fff';
+            return;
+        }
+
         let safeInsert = Math.ceil((rest + gegnerBeitrag) / 2);
         if (safeInsert > rest) safeInsert = rest;
         if (safeInsert < 0) safeInsert = 0;

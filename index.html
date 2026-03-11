@@ -48,7 +48,7 @@
 
         .result-container {
             display: flex;
-            flex-direction: column; /* Stapelt die Ergebnisse untereinander */
+            flex-direction: column;
             gap: 8px;
             margin-top: 10px;
         }
@@ -141,23 +141,23 @@
         <h2>Snipern</h2>
         <div class="input-field">
             <label for="snipern-total">Gesamt-FP Stufe</label>
-            <input type="number" id="snipern-total" placeholder="Eingabe" onblur="calculateSnipern()" required>
+            <input type="number" id="snipern-total" placeholder="Eingabe" oninput="calculateSnipern()">
         </div>
         <div class="input-field">
             <label for="snipern-current">Insgesamt im Gebäude</label>
-            <input type="number" id="snipern-current" placeholder="Eingabe" onblur="calculateSnipern()" required>
+            <input type="number" id="snipern-current" placeholder="Eingabe" oninput="calculateSnipern()">
         </div>
         <div class="input-field">
             <label for="snipern-arche">Dein Arche Faktor</label>
-            <input type="number" id="snipern-arche" value="1.9" step="0.01" onblur="calculateSnipern()" required>
+            <input type="number" id="snipern-arche" value="1.9" step="0.01" oninput="calculateSnipern()">
         </div>        
         <div class="input-field">
             <label for="snipern-besetz">FP für zu besetzenden Platz</label>
-            <input type="number" id="snipern-besetz" placeholder="Eingabe" onblur="calculateSnipern()" required>
+            <input type="number" id="snipern-besetz" placeholder="Eingabe" oninput="calculateSnipern()">
         </div>
         <div class="input-field">
             <label for="snipern-ueberhol">FP im zu überholenden Platz</label>
-            <input type="number" id="snipern-ueberhol" placeholder="Eingabe" onblur="calculateSnipern()" required>
+            <input type="number" id="snipern-ueberhol" placeholder="Eingabe" oninput="calculateSnipern()">
         </div>        
         <div class="input-field">
             <label>Ergebnis</label>
@@ -171,33 +171,30 @@
         <h2>Absichern</h2>
         <div class="input-field">
             <label for="absichern-total">Gesamtzahl benötigte FP</label>
-            <input type="number" id="absichern-total" placeholder="Eingabe" onblur="calculateAbsichern()" required>
+            <input type="number" id="absichern-total" placeholder="Eingabe" oninput="calculateAbsichern()">
         </div>
         <div class="input-field">
             <label for="absichern-current">Insgesamt einbezahlte FP</label>
-            <input type="number" id="absichern-current" placeholder="Eingabe" onblur="calculateAbsichern()" required>
+            <input type="number" id="absichern-current" placeholder="Eingabe" oninput="calculateAbsichern()">
         </div>
         <div class="input-field">
             <label for="absichern-grant">Förderung</label>
-            <input type="number" id="absichern-grant" value="1.9" step="0.01" onblur="calculateAbsichern()" required>
+            <input type="number" id="absichern-grant" value="1.9" step="0.01" oninput="calculateAbsichern()">
         </div>
         <div class="input-field">
             <label for="absichern-next">FP für zu besetzenden Platz</label>
-            <input type="number" id="absichern-next" placeholder="Eingabe" onblur="calculateAbsichern()" required>
+            <input type="number" id="absichern-next" placeholder="Eingabe" oninput="calculateAbsichern()">
         </div>
-  <div class="input-field">
-    <label>Eigenanteil:</label>
-    <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result')">
-        Ergebnis
-    </div>
-</div>
 
-<div class="input-field">
-    <label>Mäzen:</label>
-    <div class="result" id="absichern-maezen" onclick="copyToClipboard('absichern-maezen')">
-        Mäzen-Anteil
-    </div>
-</div>
+        <div class="input-field">
+            <label>Eigenanteil:</label>
+            <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result')">Ergebnis</div>
+        </div>
+
+        <div class="input-field">
+            <label>Mäzen:</label>
+            <div class="result" id="absichern-maezen" onclick="copyToClipboard('absichern-maezen')">Mäzen-Anteil</div>
+        </div>
     </div>
 
     <p style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Michael Scholz</p>
@@ -251,18 +248,15 @@ function calculateAbsichern() {
     const resMaezen = document.getElementById('absichern-maezen');
 
     if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
-        // Berechnung Eigenanteil
         const maezenAnteil = Math.round(next * grant);
         const result = Math.ceil(total - current - (2 * maezenAnteil));
         const finalEigen = result < 0 ? 0 : result;
         
-        // Eigenanteil Feld updaten
         resEigen.textContent = finalEigen + " FP";
         resEigen.setAttribute('data-value', finalEigen);
         resEigen.style.backgroundColor = '#4caf50'; 
         resEigen.style.color = '#fff';
 
-        // Mäzen Anteil Feld updaten
         resMaezen.textContent = maezenAnteil + " FP";
         resMaezen.setAttribute('data-value', maezenAnteil);
         resMaezen.style.backgroundColor = '#4caf50'; 
@@ -285,9 +279,7 @@ function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
     if (!element) return;
 
-    const bgColor = window.getComputedStyle(element).backgroundColor;
-    if (bgColor !== "rgb(76, 175, 80)") return; 
-
+    // Nur kopieren, wenn ein Wert vorhanden ist
     let textToCopy = element.getAttribute('data-value');
     if (!textToCopy) return;
 

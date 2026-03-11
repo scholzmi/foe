@@ -15,7 +15,7 @@
             padding: 0;
         }
         .container {
-            max-width: 520px;
+            max-width: 490px;
             margin: 30px auto;
             padding: 20px;
             border-radius: 8px;
@@ -190,7 +190,7 @@
                 const result = Math.round((total - current + next) / 2);
                 document.getElementById('snipern-result').textContent = result;
             } else {
-                document.getElementById('snipern-result').textContent = "Bitte geben Sie oben Werte ein.";
+                document.getElementById('snipern-result').textContent = "Ergebnis";
             }
         }
 
@@ -204,19 +204,13 @@
                 const result = total - current - (2 * grant * next);
                 document.getElementById('absichern-result').textContent = result;
             } else {
-                document.getElementById('absichern-result').textContent = "Bitte geben Sie oben Werte ein.";
+                document.getElementById('absichern-result').textContent = "Ergebnis";
             }
         }
 
         function copyToClipboard(elementId) {
             const element = document.getElementById(elementId);
             const text = element.textContent;
-
-            if (text === "Bitte geben Sie oben Werte ein." || text === "Ergebnis") {
-                alert("Bitte berechnen Sie erst ein Ergebnis!");
-                return;
-            }
-
             navigator.clipboard.writeText(text).then(() => {
                 showCopyFeedback();
             }).catch(() => {

@@ -169,10 +169,10 @@
         <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result')">Ergebnis</div>
     </div>
 
-    <div class="input-field">
-        <label for="absichern-ausschreibung">Text für Ausschreibung</label>
-        <input type="number" id="absichern-ausschreibung" placeholder="spieler gebäude" oninput="calculateAbsichern()">
-    </div>
+<div class="input-field">
+    <label for="absichern-ausschreibung">Text für Ausschreibung</label>
+    <input type="text" id="absichern-ausschreibung" placeholder="Spieler Gebäude" oninput="calculateAbsichern()">
+</div>
 
     <div class="input-field">
         <label>Mäzen zahlt:</label>
@@ -271,6 +271,15 @@ function copyToClipboard(elementId) {
 
     let textToCopy = element.getAttribute('data-value');
     if (!textToCopy) return;
+
+    // Spezielle Logik für die Mäzen-Ausschreibung
+    if (elementId === 'absichern-maezen') {
+        const ausschreibungstext = document.getElementById('absichern-ausschreibung').value;
+        if (ausschreibungstext) {
+            // Kombiniert "Spieler Gebäude" + " " + "Mäzen-Anteil"
+            textToCopy = ausschreibungstext + " " + textToCopy;
+        }
+    }
 
     navigator.clipboard.writeText(textToCopy).then(() => {
         showCopyFeedback();

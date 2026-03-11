@@ -192,34 +192,54 @@
     <div class="copy-feedback" id="copyFeedback">✓ In Zwischenablage kopiert!</div>
 
     <script>
-        function calculateSnipern() {
-            const total = parseFloat(document.getElementById('snipern-total').value);
-            const current = parseFloat(document.getElementById('snipern-current').value);
-            const arche = parseFloat(document.getElementById('snipern-arche').value);
-            const besetz = parseFloat(document.getElementById('snipern-besetz').value);
-            const ueberhol = parseFloat(document.getElementById('snipern-ueberhol').value);    
-            const resultElement = document.getElementById('snipern-result');
-            
-            if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(besetz) && !isNaN(ueberhol)) {
-                const result = Math.round((total - current + ueberhol) / 2);
-                resultElement.textContent = result;
-                
-                // Farbliche Kennzeichnung
-                const grantValue = Math.round(besetz * arche);
-                
-                if (grantValue < result) {
-                    resultElement.style.backgroundColor = '#ff6b6b'; // Rot (Sniper-Gefahr / Unwirtschaftlich)
-                    resultElement.style.color = '#fff';
-                } else {
-                    resultElement.style.backgroundColor = '#4caf50'; // Grün (Sicher)
-                    resultElement.style.color = '#fff';
-                }
-            } else {
-                resultElement.textContent = "Ergebnis";
-                resultElement.style.backgroundColor = '#e0e0e0';
-                resultElement.style.color = '#333';
-            }
+       function calculateSnipern() {
+    // Eingabewerte abgreifen
+    const total = parseFloat(document.getElementById('snipern-total').value);      // Gesamt-FP für Level
+    const current = parseFloat(document.getElementById('snipern-current').value);  // Aktueller Stand (insgesamt eingezahlt)
+    const arche = parseFloat(document.getElementById('snipern-arche').value);      // Dein Arche-Bonus (z.B. 1.9)
+    const belohnung = parseFloat(document.getElementById('snipern-besetz').value); // Grundbelohnung des Platzes
+    const eigenAnteil = parseFloat(document.getElementById('snipern-ueberhol').value); // FP desjenigen, den man überholen will (oder 0)
+
+    const resultElement = document.getElementById('snipern-result');
+
+    // Validierung
+    if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(belohnung)) {
+        
+        // 1. Berechnung: Wie viele FP muss man einzahlen, um den Platz sicher zu haben?
+        // Formel: (Rest-FP + eigene FP des Gegners) / 2
+        // Wir nehmen an, 'eigenAnteil' sind die FP des aktuellen Platzhalters.
+        let rest = total - current;
+        let safeInsert = Math.ceil((rest + (isNaN(eigenAnteil) ? 0 : eigenAnteil)) / 2);
+        
+        // Falls der Platz schon mit weniger FP sicher ist, als die Formel berechnet:
+        if (safeInsert > rest) safeInsert = rest;
+
+        // 2. Berechnung: Gewinn / Verlust
+        const maezenBonus = Math.round(belohnung * arche);
+        const profit = maezenBonus - safeInsert;
+
+        // Ergebnis-Text zusammenbauen
+        resultElement.innerHTML = `
+            Einsatz: <strong>${safeInsert} FP</strong><br>
+            Gewinn: <strong>${profit} FP</strong>
+        `;
+
+        // 3. Farbliche Kennzeichnung (Logik-Check)
+        // Grün, wenn Profit > 0 ODER zumindest kein Verlust (>= 0)
+        if (profit >= 0) {
+            resultElement.style.backgroundColor = '#4caf50'; // Grün
+            resultElement.style.color = '#fff';
+        } else {
+            resultElement.style.backgroundColor = '#ff6b6b'; // Rot
+            resultElement.style.color = '#fff';
         }
+
+    } else {
+        resultElement.textContent = "Werte unvollständig";
+        resultElement.style.backgroundColor = '#e0e0e0';
+        resultElement.style.color = '#333';
+    }
+}
 
         function calculateAbsichern() {
             const total = parseFloat(document.getElementById('absichern-total').value);

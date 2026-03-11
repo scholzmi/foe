@@ -37,13 +37,15 @@
             font-weight: normal;
             font-size: 14px;
         }
-        input[type="number"] {
-            width: 120px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+input[type="number"], 
+input[type="text"] {
+    width: 120px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box; /* Verhindert, dass Padding das Feld breiter macht */
+}
         .result-container {
             display: flex;
             flex-direction: column;
@@ -170,7 +172,7 @@
     </div>
 
 <div class="input-field">
-    <label for="absichern-ausschreibung">Text für Ausschreibung</label>
+    <label for="absichern-ausschreibung">Präfix für Ausschreibung</label>
     <input type="text" id="absichern-ausschreibung" placeholder="Spieler Gebäude" oninput="calculateAbsichern()">
 </div>
 

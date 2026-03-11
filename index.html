@@ -34,7 +34,7 @@
 
         label {
             flex: 0 0 250px;
-            font-weight: leight;
+            font-weight: normal;
         }
 
         input[type="number"] {
@@ -48,9 +48,15 @@
 
         .result-container {
             display: flex;
-            align-items: center;
+            flex-direction: column; /* Stapelt die Ergebnisse untereinander */
             gap: 8px;
             margin-top: 10px;
+        }
+
+        .result-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .result {
@@ -117,7 +123,7 @@
                 width: 100%;
             }
 
-            .result-container {
+            .result-wrapper {
                 flex-direction: column;
                 align-items: stretch;
             }
@@ -130,7 +136,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>FP Berechnungen 0.92</h1>
+        <h1>FP Berechnungen 0.93</h1>
 
         <h2>Snipern</h2>
         <div class="input-field">
@@ -154,7 +160,7 @@
             <input type="number" id="snipern-ueberhol" placeholder="Eingabe" onblur="calculateSnipern()" required>
         </div>        
         <div class="input-field">
-            <label for="snipern-result-label">Ergebnis</label>
+            <label>Ergebnis</label>
             <div class="result-container">
                 <div class="result" id="snipern-result" onclick="copyToClipboard('snipern-result')">Ergebnis</div>
             </div>
@@ -180,9 +186,16 @@
             <input type="number" id="absichern-next" placeholder="Eingabe" onblur="calculateAbsichern()" required>
         </div>
         <div class="input-field">
-            <label for="absichern-result-label">Ergebnis</label>
+            <label>Ergebnisse</label>
             <div class="result-container">
-                <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result')">Ergebnis</div>
+                <div class="result-wrapper">
+                    <span style="font-size: 12px; min-width: 80px;">Eigenanteil:</span>
+                    <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result')">Ergebnis</div>
+                </div>
+                <div class="result-wrapper">
+                    <span style="font-size: 12px; min-width: 80px;">Mäzen:</span>
+                    <div class="result" id="absichern-maezen" onclick="copyToClipboard('absichern-maezen')">Mäzen-Anteil</div>
+                </div>
             </div>
         </div>
     </div>
@@ -213,12 +226,11 @@ function calculateSnipern() {
         resultElement.innerHTML = `Einsatz: <strong>${safeInsert} FP</strong><br>Gewinn: <strong>${profit} FP</strong>`;
         resultElement.setAttribute('data-value', safeInsert);        
         
-        // Farbe setzen: Grün wenn Profit, sonst Rot
         if (profit >= 0) {
-            resultElement.style.backgroundColor = '#4caf50'; // Grün
+            resultElement.style.backgroundColor = '#4caf50';
             resultElement.style.color = '#fff';
         } else {
-            resultElement.style.backgroundColor = '#ff6b6b'; // Rot
+            resultElement.style.backgroundColor = '#ff6b6b';
             resultElement.style.color = '#fff';
         }
     } else {
@@ -234,23 +246,38 @@ function calculateAbsichern() {
     const current = parseFloat(document.getElementById('absichern-current').value);
     const grant = parseFloat(document.getElementById('absichern-grant').value);
     const next = parseFloat(document.getElementById('absichern-next').value);
-    const resultElement = document.getElementById('absichern-result');
+    
+    const resEigen = document.getElementById('absichern-result');
+    const resMaezen = document.getElementById('absichern-maezen');
 
     if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
-        const result = Math.ceil(total - current - (2 * Math.round(next * grant)));
-        const finalValue = result < 0 ? 0 : result;
+        // Berechnung Eigenanteil
+        const maezenAnteil = Math.round(next * grant);
+        const result = Math.ceil(total - current - (2 * maezenAnteil));
+        const finalEigen = result < 0 ? 0 : result;
         
-        resultElement.textContent = finalValue + " FP";
-        resultElement.setAttribute('data-value', finalValue);
-        
-        // Hier setzen wir die Farbe auch auf Grün, damit kopiert werden kann!
-        resultElement.style.backgroundColor = '#4caf50'; 
-        resultElement.style.color = '#fff';
+        // Eigenanteil Feld updaten
+        resEigen.textContent = finalEigen + " FP";
+        resEigen.setAttribute('data-value', finalEigen);
+        resEigen.style.backgroundColor = '#4caf50'; 
+        resEigen.style.color = '#fff';
+
+        // Mäzen Anteil Feld updaten
+        resMaezen.textContent = maezenAnteil + " FP";
+        resMaezen.setAttribute('data-value', maezenAnteil);
+        resMaezen.style.backgroundColor = '#4caf50'; 
+        resMaezen.style.color = '#fff';
+
     } else {
-        resultElement.textContent = "Ergebnis";
-        resultElement.style.backgroundColor = '#e0e0e0';
-        resultElement.style.color = '#333';
-        resultElement.removeAttribute('data-value');
+        resEigen.textContent = "Ergebnis";
+        resEigen.style.backgroundColor = '#e0e0e0';
+        resEigen.style.color = '#333';
+        resEigen.removeAttribute('data-value');
+
+        resMaezen.textContent = "Mäzen-Anteil";
+        resMaezen.style.backgroundColor = '#e0e0e0';
+        resMaezen.style.color = '#333';
+        resMaezen.removeAttribute('data-value');
     }
 }
 
@@ -258,15 +285,10 @@ function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
     if (!element) return;
 
-    // Prüfung: Nur kopieren, wenn der Hintergrund grün ist (#4caf50)
     const bgColor = window.getComputedStyle(element).backgroundColor;
-    if (bgColor !== "rgb(76, 175, 80)") {
-        return; 
-    }
+    if (bgColor !== "rgb(76, 175, 80)") return; 
 
-    // Wert aus data-value holen
     let textToCopy = element.getAttribute('data-value');
-    
     if (!textToCopy) return;
 
     navigator.clipboard.writeText(textToCopy).then(() => {

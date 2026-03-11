@@ -122,7 +122,7 @@
         <input type="number" id="snipern-total" placeholder="Eingabe" oninput="calculateSnipern()">
     </div>
     <div class="input-field">
-        <label for="snipern-current">Insgesamt im Gebäude</label>
+        <label for="snipern-current">Bereits im Gebäude</label>
         <input type="number" id="snipern-current" placeholder="Eingabe" oninput="calculateSnipern()">
     </div>
     <div class="input-field">
@@ -148,11 +148,11 @@
 
     <h2>Absichern</h2>
     <div class="input-field">
-        <label for="absichern-total">Gesamtzahl benötigte FP</label>
+        <label for="absichern-total">Gesamt-FP Stufe</label>
         <input type="number" id="absichern-total" placeholder="Eingabe" oninput="calculateAbsichern()">
     </div>
     <div class="input-field">
-        <label for="absichern-current">Insgesamt einbezahlte FP</label>
+        <label for="absichern-current">Bereits im Gebäude</label>
         <input type="number" id="absichern-current" placeholder="Eingabe" oninput="calculateAbsichern()">
     </div>
     <div class="input-field">
@@ -199,7 +199,7 @@ function calculateSnipern() {
         const maezenBonus = Math.round(belohnung * arche);
         const profit = maezenBonus - safeInsert;
 
-        resultElement.innerHTML = `Einsatz: <strong>${safeInsert}</strong> | Gewinn: <strong>${profit}</strong>`;
+        resultElement.innerHTML = `Einsatz: <strong>${safeInsert}</strong> \n Gewinn: <strong>${profit}</strong>`;
         resultElement.setAttribute('data-value', safeInsert);        
         
         if (profit >= 0) {

@@ -130,7 +130,7 @@
 <body>
 
 <div class="container">
-    <h1>FP Berechnungen 0.95</h1>
+    <h1>FP Berechnungen 0.94</h1>
 
     <h2>Snipern</h2>
     <div class="input-field">
@@ -364,6 +364,22 @@ function calculateAbsichern() {
 
 let feedbackTimeout = null;
 
+function execCommandCopy(text, anchorEl) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+        document.execCommand('copy');
+        showCopyFeedback(anchorEl);
+    } catch(e) {
+        console.error('Kopieren fehlgeschlagen:', e);
+    }
+    document.body.removeChild(ta);
+}
+
 function copyToClipboard(elementId, triggerEl) {
     const element = document.getElementById(elementId);
     if (!element) return;
@@ -378,11 +394,20 @@ function copyToClipboard(elementId, triggerEl) {
         }
     }
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        showCopyFeedback(triggerEl || element);
-    }).catch(err => {
-        console.error('Fehler beim Kopieren: ', err);
-    });
+    // Fallback für Umgebungen wo Clipboard API blockiert ist
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showCopyFeedback(triggerEl || element);
+            }).catch(() => {
+                execCommandCopy(textToCopy, triggerEl || element);
+            });
+        } else {
+            execCommandCopy(textToCopy, triggerEl || element);
+        }
+    } catch(e) {
+        execCommandCopy(textToCopy, triggerEl || element);
+    }
 }
 
 function showCopyFeedback(anchorEl) {

@@ -26,20 +26,26 @@
             color: #4285f4; /* Google Tasks ähnlicher Farbton */
         }
         .input-field {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block; /* Block-Element für vertikale Anordnung */
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="number"] {
-            width: 100%; /* Eingabefelder über die gesamte Breite */
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+label {
+    flex: 0 0 auto;
+    font-weight: bold;
+    min-width: 200px;
+}
+
+input[type="number"] {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
         .result {
             margin-top: 10px;
             padding: 5px;

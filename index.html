@@ -210,6 +210,14 @@
         // Wir nehmen an, 'eigenAnteil' sind die FP des aktuellen Platzhalters.
         let rest = total - current;
         let safeInsert = Math.ceil((rest + (isNaN(eigenAnteil) ? 0 : eigenAnteil)) / 2);
+
+// ... (innerhalb von calculateSnipern nach der Berechnung von safeInsert)
+resultElement.innerHTML = `
+    Einsatz: <strong>${safeInsert} FP</strong><br>
+    Gewinn: <strong>${profit} FP</strong>
+`;
+// Speichere die reine Zahl in einem Daten-Attribut
+resultElement.setAttribute('data-value', safeInsert);        
         
         // Falls der Platz schon mit weniger FP sicher ist, als die Formel berechnet:
         if (safeInsert > rest) safeInsert = rest;
@@ -257,23 +265,29 @@
             }
         }
 
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            const text = element.textContent;
-            if (text === "Ergebnis") return;
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    
+    // 1. Prüfung: Nur kopieren, wenn der Hintergrund grün ist
+    // rgb(76, 175, 80) entspricht deinem #4caf50
+    const bgColor = window.getComputedStyle(element).backgroundColor;
+    if (bgColor !== "rgb(76, 175, 80)") {
+        return; 
+    }
 
-            navigator.clipboard.writeText(text).then(() => {
-                showCopyFeedback();
-            }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showCopyFeedback();
-            });
-        }
+    // 2. Wert ermitteln: Entweder aus data-value (Snipern) oder textContent (Absichern)
+    let textToCopy = element.getAttribute('data-value') || element.textContent;
+    
+    // Falls noch "Ergebnis" drin steht, nicht kopieren
+    if (textToCopy === "Ergebnis") return;
+
+    // Kopier-Vorgang
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        showCopyFeedback();
+    }).catch(err => {
+        console.error('Fehler beim Kopieren: ', err);
+    });
+}
 
         function showCopyFeedback() {
             const feedback = document.getElementById('copyFeedback');

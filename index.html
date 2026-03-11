@@ -132,21 +132,25 @@
 
         <h2>Snipern</h2>
         <div class="input-field">
-            <label for="snipern-total">Gesamtzahl benötigte FP</label>
+            <label for="snipern-total">Gesamt-FP Stufe</label>
             <input type="number" id="snipern-total" placeholder="Eingabe" onblur="calculateSnipern()" required>
         </div>
         <div class="input-field">
-            <label for="snipern-current">Insgesamt einbezahlte FP</label>
+            <label for="snipern-current">Insgesamt im Gebäude</label>
             <input type="number" id="snipern-current" placeholder="Eingabe" onblur="calculateSnipern()" required>
         </div>
         <div class="input-field">
-            <label for="absichern-grant">Förderung</label>
-            <input type="number" id="snipern-grant" value="1.9" onblur="calculateAbsichern()" required>
+            <label for="snipern-arche">Dein Arche Faktor</label>
+            <input type="number" id="snipern-arche" value="1.9" onblur="calculateAbsichern()" required>
         </div>        
         <div class="input-field">
-            <label for="snipern-next">FP auf zu besetzendem Platz</label>
-            <input type="number" id="snipern-next" placeholder="Eingabe" onblur="calculateSnipern()" required>
+            <label for="snipern-besetz">FP für zu besetzenden Platz</label>
+            <input type="number" id="snipern-besetz" placeholder="Eingabe" onblur="calculateSnipern()" required>
         </div>
+        <div class="input-field">
+            <label for="snipern-ueberhol">FP im zu überholenden Platz</label>
+            <input type="number" id="snipern-ueberhol" placeholder="Eingabe" onblur="calculateSnipern()" required>
+        </div>        
         <div class="input-field">
             <label for="snipern-result">Ergebnis</label>
             <div class="result-container">
@@ -188,16 +192,17 @@
 function calculateSnipern() {
     const total = parseFloat(document.getElementById('snipern-total').value);
     const current = parseFloat(document.getElementById('snipern-current').value);
-    const next = parseFloat(document.getElementById('snipern-next').value);
-    const grant = parseFloat(document.getElementById('snipern-grant').value);
+    const arche = parseFloat(document.getElementById('snipern-arche').value);
+    const besetz = parseFloat(document.getElementById('snipern-besetz').value);
+    const ueberhol = parseFloat(document.getElementById('snipern-ueberhol').value);    
     const resultElement = document.getElementById('snipern-result');
     
-    if (!isNaN(total) && !isNaN(current) && !isNaN(next) && !isNaN(grant)) {
-        const result = Math.round((total - current + next) / 2);
+    if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(besetz) && !isNaN(ueberhol)) {
+        const result = Math.round((total - current + ueberhol) / 2);
         resultElement.textContent = result;
         
         // Farbliche Kennzeichnung
-        const grantTimesNext = grant * next;
+        const grantTimesNext = besetz * arche;
         
         if (grantTimesNext < result) {
             resultElement.style.backgroundColor = '#ff6b6b'; // Rot

@@ -46,6 +46,12 @@
             font-size: 14px;
             box-sizing: border-box;
         }
+        input[readonly] {
+            background-color: #e0e0e0;
+            color: #555;
+            cursor: default;
+            border-color: #ccc;
+        }
         .result-container {
             display: flex;
             flex-direction: column;
@@ -53,7 +59,7 @@
             margin-top: 5px;
         }
         .result {
-            width: 160px;           /* gleiche Breite wie Input-Felder */
+            width: 160px;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -65,7 +71,7 @@
             transition: background-color 0.2s, box-shadow 0.2s;
             text-align: center;
             min-height: 20px;
-            box-sizing: border-box; /* damit padding nicht addiert wird */
+            box-sizing: border-box;
         }
         .result:hover {
             background-color: #d0d0d0;
@@ -131,6 +137,10 @@
         <input type="number" id="snipern-current" placeholder="Eingabe" oninput="calculateSnipern(); saveFormToCookie()">
     </div>
     <div class="input-field">
+        <label for="snipern-rest">Rest Gebäude</label>
+        <input type="number" id="snipern-rest" placeholder="–" readonly>
+    </div>
+    <div class="input-field">
         <label for="snipern-arche">Dein Arche Faktor</label>
         <input type="number" id="snipern-arche" value="1.9" step="0.01" oninput="calculateSnipern(); saveFormToCookie()">
     </div>        
@@ -159,6 +169,10 @@
     <div class="input-field">
         <label for="absichern-current">Bereits im Gebäude</label>
         <input type="number" id="absichern-current" placeholder="Eingabe" oninput="calculateAbsichern(); saveFormToCookie()">
+    </div>
+    <div class="input-field">
+        <label for="absichern-rest">Rest Gebäude</label>
+        <input type="number" id="absichern-rest" placeholder="–" readonly>
     </div>
     <div class="input-field">
         <label for="absichern-grant">Förderung (z.B. 1.9)</label>
@@ -203,7 +217,6 @@ function saveFormToCookie() {
     fields.forEach(id => {
         data[id] = document.getElementById(id).value;
     });
-    // Cookie läuft in 365 Tagen ab
     const expires = new Date(Date.now() + 365 * 864e5).toUTCString();
     document.cookie = 'fpForm=' + encodeURIComponent(JSON.stringify(data))
         + '; expires=' + expires + '; path=/; SameSite=Lax';
@@ -232,6 +245,14 @@ function calculateSnipern() {
     const belohnung = parseFloat(document.getElementById('snipern-besetz').value);
     const gegnerBeitrag = parseFloat(document.getElementById('snipern-ueberhol').value) || 0;
     const resultElement = document.getElementById('snipern-result');
+    const restField = document.getElementById('snipern-rest');
+
+    // Rest Gebäude berechnen und anzeigen
+    if (!isNaN(total) && !isNaN(current)) {
+        restField.value = total - current;
+    } else {
+        restField.value = '';
+    }
 
     if (!isNaN(total) && !isNaN(current) && !isNaN(arche) && !isNaN(belohnung)) {
         let rest = total - current;
@@ -270,9 +291,17 @@ function calculateAbsichern() {
     const current = parseFloat(document.getElementById('absichern-current').value);
     const grant = parseFloat(document.getElementById('absichern-grant').value);
     const next = parseFloat(document.getElementById('absichern-next').value);
-    
+    const restField = document.getElementById('absichern-rest');
+
     const resEigen = document.getElementById('absichern-result');
     const resMaezen = document.getElementById('absichern-maezen');
+
+    // Rest Gebäude berechnen und anzeigen
+    if (!isNaN(total) && !isNaN(current)) {
+        restField.value = total - current;
+    } else {
+        restField.value = '';
+    }
 
     if (!isNaN(total) && !isNaN(current) && !isNaN(grant) && !isNaN(next)) {
         const maezenAnteil = Math.round(next * grant);

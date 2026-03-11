@@ -37,14 +37,14 @@
             font-weight: bold;
         }
 
-input[type="number"] {
-    width: 150px;
-    flex: 0 0 auto;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
+        input[type="number"] {
+            width: 150px;
+            flex: 0 0 auto;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
 
         .result-container {
             display: flex;
@@ -54,39 +54,25 @@ input[type="number"] {
         }
 
         .result {
-             width: 150px;
-            flex: 1;
+            width: 150px;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             background-color: #e0e0e0;
             color: #333;
             font-size: 14px;
-            pointer-events: none;
-            min-width: 0;
-            word-break: break-all;
-        }
-
-        .copy-btn {
-            flex: 0 0 auto;
-            padding: 8px 12px;
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            white-space: nowrap;
+            user-select: none;
+            transition: background-color 0.2s, box-shadow 0.2s;
         }
 
-        .copy-btn:hover {
-            background-color: #1f6fd8;
+        .result:hover {
+            background-color: #d0d0d0;
+            box-shadow: 0 0 5px rgba(66, 133, 244, 0.3);
         }
 
-        .copy-btn:active {
-            background-color: #1450a8;
+        .result:active {
+            background-color: #c0c0c0;
         }
 
         .copy-feedback {
@@ -137,11 +123,6 @@ input[type="number"] {
             .result {
                 width: 100%;
             }
-
-            .copy-btn {
-                width: 100%;
-                text-align: center;
-            }
         }
     </style>
 </head>
@@ -165,8 +146,7 @@ input[type="number"] {
         <div class="input-field">
             <label for="snipern-result">Ergebnis</label>
             <div class="result-container">
-                <div class="result" id="snipern-result">Ergebnis</div>
-                <button class="copy-btn" onclick="copyToClipboard('snipern-result')">Kopieren</button>
+                <div class="result" id="snipern-result" onclick="copyToClipboard('snipern-result')">Ergebnis</div>
             </div>
         </div>
 
@@ -190,8 +170,7 @@ input[type="number"] {
         <div class="input-field">
             <label for="absichern-result">Ergebnis</label>
             <div class="result-container">
-                <div class="result" id="absichern-result">Ergebnis</div>
-                <button class="copy-btn" onclick="copyToClipboard('absichern-result')">Kopieren</button>
+                <div class="result" id="absichern-result" onclick="copyToClipboard('absichern-result')">Ergebnis</div>
             </div>
         </div>
     </div>
@@ -233,7 +212,7 @@ input[type="number"] {
             const element = document.getElementById(elementId);
             const text = element.textContent;
 
-            if (text === "Bitte geben Sie oben Werte ein.") {
+            if (text === "Bitte geben Sie oben Werte ein." || text === "Ergebnis") {
                 alert("Bitte berechnen Sie erst ein Ergebnis!");
                 return;
             }
